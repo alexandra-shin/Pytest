@@ -8,13 +8,10 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import Select
 
-"""
-Here is the set of custom functions I created which help to interact with UI of web application.
-"""
 # Default wait time in seconds.
 WAIT = 10
 
-class BaseClass:
+class Helpers:
     def __init__(self, driver: WebDriver):
         self._driver = driver
 
@@ -37,6 +34,10 @@ class BaseClass:
         self._find(locator).send_keys(Keys.CONTROL + "a")
         self._find(locator).send_keys(Keys.DELETE)
 
+    def clear_textfield_and_type(self, locator: tuple, text: str):
+        self._find(locator).clear()   
+        self._find(locator).send_keys(text) 
+
     def type_and_enter(self, locator: tuple, text: str):
         """ type something then enter """
         self._find(locator).send_keys(text, Keys.ENTER)
@@ -46,7 +47,7 @@ class BaseClass:
         self._find(locator).send_keys(text)
         if pause:
             time.sleep(pause) 
-        self._find(locator).send_keys(Keys.ENTER)      
+        self._find(locator).send_keys(Keys.ENTER)    
 
     def click(self, locator: tuple):
         """ look for the element and click """
@@ -71,7 +72,7 @@ class BaseClass:
             .move_to_element(self._find(locator)) \
             .pause(pause) \
             .perform()
-        ActionChains(self._driver).reset_actions()
+        ActionChains(self._driver).reset_actions()    
 
     def drag_and_drop(self, locator_source: tuple, locator_target: tuple):
         """ drag'n'drop specific element to specific location on the page """
@@ -87,10 +88,10 @@ class BaseClass:
             .release().perform()
         ActionChains(self._driver).reset_actions()
 
-    def click_and_wait(self, locator: tuple, before: int, after: int):
-        time.sleep(before)
+    def click_and_wait(self, locator: tuple, wait_before_sec: int, wait_after_sec: int):
+        time.sleep(wait_before_sec)
         self._find(locator).click()
-        time.sleep(after)
+        time.sleep(wait_after_sec)
 
     def _wait_until_element_is_visible(self, locator: tuple, time: int = WAIT):
         """ waits until the element is visible with a timeout """
@@ -112,8 +113,10 @@ class BaseClass:
         self._wait_until_element_is_visible(locator, time)
         return self._find(locator).get_attribute(attribute)
 
-    def select_from_dropdown(self, locator: tuple, text: str):
+    def select_from_dropdown(self, locator: tuple, text: str, wait_before_sec: int = 0, wait_after_sec: int = 0):
+        time.sleep(wait_before_sec)
         Select(self._find(locator)).select_by_visible_text(text)
+        time.sleep(wait_after_sec)
 
     @property
     def get_current_url(self) -> str:
@@ -138,7 +141,7 @@ class BaseClass:
 
     def is_enabled(self, locator: tuple) -> bool:
         return self._find(locator).is_enabled()
-
+    
     def scroll_to_bottom_of_element(self, locator: tuple):
         element = self._driver.find_element(*locator)
         self._driver.execute_script("arguments[0].scrollTop = arguments[0].scrollHeight", element)

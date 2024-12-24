@@ -1,0 +1,9 @@
+pages/constants.py
+pages/__pycache__
+tests/__pycache__
+utils/__pycache__
+__pycache__
+.vscode
+.venv
+.pytest_cache
+.DS_Store
